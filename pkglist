@@ -1,0 +1,28 @@
+#!/bin/bash
+
+HOSTNAME=`hostname`
+
+if [ -f $HOSTNAME.pkglist ]
+then
+	while true
+	do
+		echo -n "File $HOSTNAME.pkglist exists! Overwrite? "
+		read q
+
+		if [ `echo $q | grep -Eci "y(es$|$)" -` == "1" ]
+		then
+			break
+		elif [ `echo $q | grep -Eci "n(o$|$)" -` == "1" ]
+		then
+			echo "Aborted"
+			exit 0
+		fi
+	done
+fi
+
+comm -23 \
+	<(pacman -Qeq | sort) \
+	<(pacman -Qmq | sort) \
+	> $HOSTNAME.pkglist
+
+echo $(wc -l $HOSTNAME.pkglist | awk '{print $1 " lines written to " $2}')
